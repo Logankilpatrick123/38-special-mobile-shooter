@@ -41,7 +41,7 @@
   bestEl.textContent = fmt(best);
   function fmt(n) { return String(Math.max(0, n)).padStart(4, '0'); }
   function resize() { const r = frame.getBoundingClientRect(); dpr = Math.min(devicePixelRatio || 1, 2); width = r.width; height = r.height; canvas.width = width * dpr; canvas.height = height * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
-  function beep(freq, duration, type = 'sine') { if (!soundOn || !audioApi) return; audioContext ||= new audioApi(); const o = audioContext.createOscillator(), g = audioContext.createGain(); o.type = type; o.frequency.value = freq; g.gain.setValueAtTime(.035, audioContext.currentTime); g.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + duration); o.connect(g); g.connect(audioContext.destination); o.start(); o.stop(audioContext.currentTime + duration); }
+  function beep(freq, duration, type = 'sine') { if (!soundOn || !audioApi) return; audioContext ||= new audioApi(); if (audioContext.state === 'suspended') audioContext.resume(); const o = audioContext.createOscillator(), g = audioContext.createGain(); o.type = type; o.frequency.value = freq; g.gain.setValueAtTime(.035, audioContext.currentTime); g.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + duration); o.connect(g); g.connect(audioContext.destination); o.start(); o.stop(audioContext.currentTime + duration); }
   function project(x, y, z) { const dx = x - player.x, dz = z - player.z, cos = Math.cos(player.yaw), sin = Math.sin(player.yaw); const side = dx * cos - dz * sin, depth = -(dx * sin + dz * cos); if (depth <= .25) return null; return { x: width / 2 + side * (width * .7) / depth, y: height * .5 - (y - EYE_HEIGHT - player.pitch) * (height * .8) / depth, depth }; }
   function worldDepth(item) { const dx = item.x - player.x, dz = item.z - player.z; return -(dx * Math.sin(player.yaw) + dz * Math.cos(player.yaw)); }
   function drawCube(b, now) {
@@ -220,16 +220,17 @@
   joystick.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); joyId = e.pointerId; joystick.setPointerCapture(joyId); const r = joystick.getBoundingClientRect(); joyCenter = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
   joystick.addEventListener('pointermove', e => { if (e.pointerId !== joyId || paused) return; e.preventDefault(); const dx = e.clientX - joyCenter.x, dy = e.clientY - joyCenter.y, max = 37, distance = Math.min(max, Math.hypot(dx, dy)), angle = Math.atan2(dy, dx); joystickInput.x = (Math.cos(angle) * distance) / max; joystickInput.y = -(Math.sin(angle) * distance) / max; joystick.querySelector('span').style.transform = `translate(${Math.cos(angle) * distance}px,${Math.sin(angle) * distance}px)`; });
   joystick.addEventListener('pointerup', releaseJoystick); joystick.addEventListener('pointercancel', releaseJoystick); joystick.addEventListener('lostpointercapture', releaseJoystick);
-  frame.addEventListener('pointerdown', e => { if (e.target === joystick || joystick.contains(e.target)) return; lookId = e.pointerId; lookX = e.clientX; lookStartX = e.clientX; lookStartY = e.clientY; });
+  frame.addEventListener('pointerdown', e => { if (e.target === joystick || joystick.contains(e.target)) return; e.preventDefault(); lookId = e.pointerId; frame.setPointerCapture(lookId); lookX = e.clientX; lookStartX = e.clientX; lookStartY = e.clientY; });
   frame.addEventListener('pointermove', e => { if (e.pointerId === lookId && running && !paused) { player.yaw += (e.clientX - lookX) * .008; lookX = e.clientX; } });
-  frame.addEventListener('pointerup', e => { if (e.pointerId !== lookId) return; const moved = Math.hypot(e.clientX - lookStartX, e.clientY - lookStartY); if (running && moved < 12 && e.target === canvas) { const r = canvas.getBoundingClientRect(); fire(e.clientX - r.left, e.clientY - r.top); } lookId = null; });
-  frame.addEventListener('pointercancel', () => { lookId = null; });
+  function releaseLook(e) { if (e && lookId !== null && frame.hasPointerCapture(e.pointerId)) frame.releasePointerCapture(e.pointerId); lookId = null; }
+  frame.addEventListener('pointerup', e => { if (e.pointerId !== lookId) return; const moved = Math.hypot(e.clientX - lookStartX, e.clientY - lookStartY); if (running && !paused && moved < 12) { const r = canvas.getBoundingClientRect(); fire(e.clientX - r.left, e.clientY - r.top); } releaseLook(e); });
+  frame.addEventListener('pointercancel', releaseLook);
   document.getElementById('shootButton').addEventListener('pointerdown', e => { e.preventDefault(); fire(); }); document.getElementById('reloadButton').addEventListener('click', reload);
   document.getElementById('pauseButton').addEventListener('click', togglePause); document.getElementById('resumeButton').addEventListener('click', togglePause);
   document.getElementById('startButton').addEventListener('click', start); document.getElementById('restartButton').addEventListener('click', start);
   document.getElementById('soundToggle').addEventListener('click', e => { soundOn = !soundOn; e.currentTarget.textContent = soundOn ? '♫' : '×'; e.currentTarget.setAttribute('aria-pressed', soundOn); });
   addEventListener('keydown', e => { const key = e.key.toLowerCase(); if (key === 'p') { e.preventDefault(); togglePause(); return; } if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); if (running && !paused) keys[key] = true; } if (e.code === 'Space') { e.preventDefault(); if (!running && !startModal.classList.contains('hidden')) start(); else fire(); } if (key === 'r') reload(); });
   addEventListener('keyup', e => { const key = e.key.toLowerCase(); if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); keys[key] = false; } });
-  addEventListener('blur', () => { clearInput(); releaseJoystick(); if (running && !paused) togglePause(); });
+  addEventListener('blur', () => { clearInput(); releaseJoystick(); releaseLook(); if (running && !paused) togglePause(); });
   addEventListener('resize', resize); resize(); updateAmmo();
 })();

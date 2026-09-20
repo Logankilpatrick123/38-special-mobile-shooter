@@ -10,13 +10,15 @@
 }
 
 * { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
 body {
-  min-height: 100vh; margin: 0; color: var(--ink); background: var(--bg);
+  min-height: 100vh; min-height: 100svh; margin: 0; color: var(--ink); background: var(--bg);
   font-family: 'Barlow Condensed', sans-serif; letter-spacing: .03em;
   background-image: radial-gradient(circle at 20% 0%, #24244b 0, transparent 36%), linear-gradient(155deg, #0d1024 25%, #171632 100%);
+  overflow-x: hidden; overscroll-behavior: none; -webkit-user-select: none; user-select: none;
 }
-button { font: inherit; color: inherit; cursor: pointer; border: 0; }
-.game-shell { width: min(100%, 860px); min-height: 100vh; margin: auto; padding: 26px clamp(16px, 4vw, 42px) 32px; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.game-shell { width: min(100%, 860px); min-height: 100vh; min-height: 100svh; margin: auto; padding: max(18px, env(safe-area-inset-top)) clamp(12px, 4vw, 42px) max(24px, env(safe-area-inset-bottom)); }
 .topbar, .hud, .controls, .weapon-card, .brand, .ammo-wrap { display: flex; align-items: center; }
 .topbar { justify-content: space-between; margin-bottom: 25px; }
 .top-actions { display: flex; align-items: center; gap: 8px; }
@@ -27,7 +29,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; }
 h1 { margin: 2px 0 0; font-size: 26px; font-weight: 700; line-height: 1; letter-spacing: .02em; }
 h1 span { color: var(--cyan); }
 .icon-button { width: 40px; height: 40px; color: var(--cyan); border: 1px solid var(--line); border-radius: 50%; background: rgba(56, 57, 101, .4); font-size: 19px; }
-.hud { gap: clamp(12px, 3vw, 28px); padding: 15px 18px; border: 1px solid var(--line); border-radius: 11px; background: rgba(22, 25, 55, .66); box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+.hud { gap: clamp(8px, 3vw, 28px); padding: 15px 18px; border: 1px solid var(--line); border-radius: 11px; background: rgba(22, 25, 55, .66); box-shadow: 0 10px 30px rgba(0,0,0,.18); }
 .stat { position: relative; min-width: 64px; }
 .stat span, .ammo-label { display: block; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .11em; }
 .stat strong { font: 700 24px 'DM Mono', monospace; letter-spacing: -.08em; }
@@ -38,7 +40,7 @@ h1 span { color: var(--cyan); }
 .ammo { display: flex; gap: 5px; }
 .ammo i { display: block; width: 12px; height: 20px; border: 1px solid var(--cyan); border-radius: 7px 7px 3px 3px; background: var(--cyan); box-shadow: 0 0 9px rgba(82,226,237,.45); transition: .2s; }
 .ammo i.empty { border-color: #4e5275; background: transparent; box-shadow: none; }
-.range-frame { position: relative; overflow: hidden; height: min(57vh, 490px); min-height: 330px; margin-top: 14px; border: 1px solid #5a5d9a; border-radius: 12px; background: #161936; box-shadow: inset 0 0 70px rgba(5,7,27,.8), 0 18px 45px rgba(0,0,0,.24); touch-action: none; }
+.range-frame { position: relative; overflow: hidden; height: min(62svh, 560px); min-height: 330px; margin-top: 14px; border: 1px solid #5a5d9a; border-radius: 12px; background: #161936; box-shadow: inset 0 0 70px rgba(5,7,27,.8), 0 18px 45px rgba(0,0,0,.24); touch-action: none; contain: layout paint; }
 #range { display: block; width: 100%; height: 100%; }
 .range-note { position: absolute; z-index: 1; top: 16px; left: 18px; color: rgba(210,214,255,.45); font: 10px 'DM Mono', monospace; letter-spacing: .15em; pointer-events: none; }
 .toast { position: absolute; top: 44%; left: 50%; z-index: 5; color: var(--cyan); font: 700 19px 'DM Mono', monospace; text-shadow: 0 0 14px var(--cyan); transform: translate(-50%, -50%); opacity: 0; pointer-events: none; }
@@ -79,6 +81,15 @@ h1 span { color: var(--cyan); }
 .look-zone { position: absolute; z-index: 6; right: 15px; bottom: 25px; color: rgba(205,212,255,.42); font: 9px 'DM Mono', monospace; letter-spacing: .12em; pointer-events: none; }
 .control-legend { position: absolute; z-index: 6; right: 15px; top: 15px; display: flex; gap: 10px; padding: 7px 9px; color: rgba(213,220,255,.68); border: 1px solid rgba(152,164,235,.25); border-radius: 5px; background: rgba(13,16,36,.48); font: 9px 'DM Mono', monospace; letter-spacing: .04em; pointer-events: none; }
 .control-legend b { color: var(--cyan); font-weight: 500; }
-@media (max-width: 490px) { .range-frame { min-height: 380px; height: 57vh; }.look-zone { display: block; }.range-note { font-size: 8px; } }
+.orientation-note { display: none; }
+@media (max-width: 700px) {
+  .game-shell { padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); }
+  .topbar { margin-bottom: 14px; }.hud { padding: 10px; }.stat { min-width: 48px; }.stat strong { font-size: clamp(17px, 5vw, 22px); }
+  .range-frame { margin-top: 10px; height: min(63svh, 520px); min-height: 300px; border-radius: 9px; }
+  .control-button { min-height: 68px; font-size: 18px; }.joystick { width: clamp(92px, 24vw, 112px); height: clamp(92px, 24vw, 112px); }
+}
+@media (max-width: 490px) { .range-frame { min-height: 330px; height: 56svh; }.look-zone { display: block; }.range-note { font-size: 8px; }.ammo i { width: 8px; }.ammo { gap: 3px; }.control-legend { max-width: 70%; overflow: hidden; white-space: nowrap; } }
+@media (orientation: portrait) and (max-width: 700px) { .orientation-note { position: fixed; left: 50%; bottom: max(8px, env(safe-area-inset-bottom)); z-index: 12; display: block; transform: translateX(-50%); padding: 7px 10px; color: rgba(225,232,255,.7); border: 1px solid rgba(152,164,235,.25); border-radius: 5px; background: rgba(13,16,36,.8); font: 9px 'DM Mono', monospace; pointer-events: none; } }
+@media (max-height: 480px) and (orientation: landscape) { .game-shell { padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(10px, env(safe-area-inset-bottom)); }.topbar { margin-bottom: 8px; }.topbar h1 { font-size: 20px; }.hud { padding: 7px 10px; }.range-frame { height: min(68svh, 420px); min-height: 230px; }.weapon-card { min-height: 66px; padding: 6px 12px; }.weapon-illustration { transform: scale(.72); transform-origin: left center; margin-right: -22px; }.weapon-copy p { display: none; }.control-button { min-height: 50px; } }
 @media (max-width: 490px) { .control-legend { top: 39px; right: 10px; gap: 6px; padding: 6px; font-size: 7px; }.control-button { min-height: 62px; }.control-button kbd { display: none; } }
 @media (min-width: 700px) { .joystick { display: none; } }
