@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1024">
+  <title>38 Special: Neon Blockout</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">✦</span><div><p class="eyebrow">BLOCKOUT RANGE / SESSION 38</p><h1>38 <span>Special</span></h1></div></div>
+      <div class="top-actions"><button class="icon-button" id="pauseButton" type="button" aria-pressed="false" aria-label="Pause game">Ⅱ</button><button class="icon-button" id="soundToggle" type="button" aria-pressed="true" aria-label="Mute sound">♫</button></div>
+    </header>
+    <section class="hud" aria-label="First-person game status">
+      <div class="stat"><span>SCORE</span><strong id="score">0000</strong></div>
+      <div class="stat"><span>BEST</span><strong id="best">0000</strong></div>
+      <div class="stat timer-stat"><span>TIME</span><strong id="timer">45</strong><small>s</small></div>
+      <div class="ammo-wrap" aria-label="Ammunition"><span class="ammo-label">CYLINDER</span><div class="ammo" id="ammo" aria-live="polite"></div></div>
+    </section>
+    <section class="range-frame" id="rangeFrame">
+      <div class="range-note">WASD MOVE · DRAG TO LOOK · TAG THE BOTS</div>
+      <canvas id="range" aria-label="First-person blocky neon arena"></canvas>
+      <div class="damage-vignette" id="damageVignette" aria-hidden="true"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="look-zone" id="lookZone">DRAG TO LOOK</div>
+      <div class="control-legend" aria-label="Control legend">
+        <span><b>WASD</b> MOVE</span><span><b>MOUSE</b> AIM + FIRE</span><span><b>R</b> RELOAD</span>
+      </div>
+    </section>
+    <section class="controls" aria-label="Game controls">
+      <button class="control-button secondary" id="reloadButton" type="button"><span class="button-icon">↻</span><span>RELOAD</span><kbd>R</kbd></button>
+      <button class="control-button primary" id="shootButton" type="button"><span class="button-icon">●</span><span>FIRE</span><kbd>CLICK / SPACE</kbd></button>
+    </section>
+    <section class="weapon-card" aria-label="Current loadout">
+      <div class="weapon-illustration" aria-hidden="true"><div class="revolver-grip"></div><div class="revolver-frame"></div><div class="revolver-barrel"></div><div class="revolver-cylinder"></div></div>
+      <div class="weapon-copy"><span class="eyebrow">EQUIPPED SIDEARM</span><h2>THE NIGHTFALL .38</h2><p>Six bright chances in a blockout arena.</p></div>
+      <div class="round-count"><strong id="roundCount">6</strong><span>ROUNDS</span></div>
+    </section>
+  </main>
+  <div class="modal-backdrop" id="startModal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-spark">✦</div><p class="eyebrow">WELCOME TO THE BLOCKOUT</p><h2 id="modalTitle">Own the<br><em>neon grid.</em></h2><p class="modal-copy">Move through the urban range, turn with mouse or touch, and tag the glowing bots at center aim.</p><div class="tip-row"><span>WASD</span><p>move · drag to look</p></div><div class="tip-row"><span>45</span><p>seconds · six rounds</p></div><button class="start-button" id="startButton" type="button">Enter the arena <span>→</span></button><p class="keyboard-tip">Use P or the pause button to pause safely.</p></div></div>
+  <div class="modal-backdrop hidden" id="pauseModal"><div class="modal pause-modal" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><p class="eyebrow">SESSION PAUSED</p><h2 id="pauseTitle">Hold the<br><em>line.</em></h2><p class="modal-copy">The timer, targets, movement, and firing are frozen.</p><button class="start-button" id="resumeButton" type="button">Resume session <span>→</span></button><p class="keyboard-tip">Press <strong>P</strong> or use the pause button to resume.</p></div></div>
+  <div class="modal-backdrop hidden" id="endModal"><div class="modal result-modal" role="dialog" aria-modal="true" aria-labelledby="endTitle"><p class="eyebrow">SESSION COMPLETE</p><h2 id="endTitle">The grid<br><em>goes quiet.</em></h2><div class="final-score"><span>FINAL SCORE</span><strong id="finalScore">0000</strong></div><p id="resultMessage" class="modal-copy"></p><button class="start-button" id="restartButton" type="button">Drop back in <span>↻</span></button></div></div>
+  <script src="script.js"></script>
+</body>
+</html>
