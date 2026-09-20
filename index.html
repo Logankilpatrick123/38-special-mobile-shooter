@@ -20,14 +20,14 @@
       <div class="ammo-wrap" aria-label="Ammunition"><span class="ammo-label">CYLINDER</span><div class="ammo" id="ammo" aria-live="polite"></div></div>
     </section>
     <section class="range-frame" id="rangeFrame">
-      <div class="range-note">WASD MOVE · DRAG TO LOOK · TAG THE BOTS</div>
+      <div class="range-note">WASD / MOVE · DRAG TO LOOK · TAG THE BOTS</div>
       <canvas id="range" aria-label="First-person blocky neon arena"></canvas>
       <div class="damage-vignette" id="damageVignette" aria-hidden="true"></div>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
       <div class="joystick" id="joystick" aria-label="Move joystick"><span></span><b>MOVE</b></div>
       <div class="look-zone" id="lookZone">DRAG TO LOOK</div>
       <div class="control-legend" aria-label="Control legend">
-        <span><b>WASD</b> MOVE</span><span><b>MOUSE</b> AIM + FIRE</span><span><b>R</b> RELOAD</span>
+        <span><b>WASD</b> MOVE</span><span><b>MOUSE</b> AIM + FIRE</span><span><b>P</b> PAUSE</span>
       </div>
     </section>
     <section class="controls" aria-label="Game controls">
@@ -42,7 +42,7 @@
   </main>
   <div class="orientation-note" aria-hidden="true">Rotate to landscape for the clearest range view</div>
   <div class="modal-backdrop" id="startModal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-spark">✦</div><p class="eyebrow">WELCOME TO THE BLOCKOUT</p><h2 id="modalTitle">Own the<br><em>neon grid.</em></h2><p class="modal-copy">Move through the urban range, turn with mouse or touch, and tag the glowing bots at center aim.</p><div class="tip-row"><span>WASD</span><p>move · drag to look</p></div><div class="tip-row"><span>45</span><p>seconds · six rounds</p></div><button class="start-button" id="startButton" type="button">Enter the arena <span>→</span></button><p class="keyboard-tip">Use the left MOVE pad, right look zone, and FIRE / RELOAD controls.</p></div></div>
-  <div class="modal-backdrop hidden" id="pauseModal"><div class="modal pause-modal" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><p class="eyebrow">SESSION PAUSED</p><h2 id="pauseTitle">Hold the<br><em>line.</em></h2><p class="modal-copy">The timer, targets, movement, and firing are frozen.</p><button class="start-button" id="resumeButton" type="button">Resume session <span>→</span></button><p class="keyboard-tip">Press <strong>P</strong> or use the pause button to resume.</p></div></div>
+  <div class="modal-backdrop hidden" id="pauseModal"><div class="modal pause-modal" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><p class="eyebrow">SESSION PAUSED</p><h2 id="pauseTitle">Hold the<br><em>line.</em></h2><p class="modal-copy">The timer, targets, movement, and firing are frozen.</p><button class="start-button" id="resumeButton" type="button">Resume / Play <span>→</span></button><p class="keyboard-tip">Press <strong>P</strong>, <strong>SPACE</strong>, or use the pause button to resume.</p></div></div>
   <div class="modal-backdrop hidden" id="endModal"><div class="modal result-modal" role="dialog" aria-modal="true" aria-labelledby="endTitle"><p class="eyebrow">SESSION COMPLETE</p><h2 id="endTitle">The grid<br><em>goes quiet.</em></h2><div class="final-score"><span>FINAL SCORE</span><strong id="finalScore">0000</strong></div><p id="resultMessage" class="modal-copy"></p><button class="start-button" id="restartButton" type="button">Drop back in <span>↻</span></button></div></div>
   <script src="script.js"></script>
 </body>

@@ -180,6 +180,8 @@
     if (!running) return;
     paused = !paused;
     clearInput();
+    releaseJoystick();
+    releaseLook();
     pauseModal.classList.toggle('hidden', !paused);
     document.getElementById('pauseButton').textContent = paused ? '▶' : 'Ⅱ';
     document.getElementById('pauseButton').setAttribute('aria-pressed', String(paused));
@@ -229,7 +231,7 @@
   document.getElementById('pauseButton').addEventListener('click', togglePause); document.getElementById('resumeButton').addEventListener('click', togglePause);
   document.getElementById('startButton').addEventListener('click', start); document.getElementById('restartButton').addEventListener('click', start);
   document.getElementById('soundToggle').addEventListener('click', e => { soundOn = !soundOn; e.currentTarget.textContent = soundOn ? '♫' : '×'; e.currentTarget.setAttribute('aria-pressed', soundOn); });
-  addEventListener('keydown', e => { const key = e.key.toLowerCase(); if (key === 'p') { e.preventDefault(); togglePause(); return; } if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); if (running && !paused) keys[key] = true; } if (e.code === 'Space') { e.preventDefault(); if (!running && !startModal.classList.contains('hidden')) start(); else fire(); } if (key === 'r') reload(); });
+  addEventListener('keydown', e => { const key = e.key.toLowerCase(); if (key === 'p') { e.preventDefault(); togglePause(); return; } if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); if (running && !paused) keys[key] = true; } if (e.code === 'Space') { e.preventDefault(); if (!running && !startModal.classList.contains('hidden')) start(); else if (paused) togglePause(); else fire(); } if (key === 'r') reload(); });
   addEventListener('keyup', e => { const key = e.key.toLowerCase(); if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); keys[key] = false; } });
   addEventListener('blur', () => { clearInput(); releaseJoystick(); releaseLook(); if (running && !paused) togglePause(); });
   addEventListener('resize', resize); resize(); updateAmmo();
