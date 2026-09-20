@@ -236,6 +236,7 @@
   function releaseLook(e) { if (e && lookId !== null && frame.hasPointerCapture(e.pointerId)) frame.releasePointerCapture(e.pointerId); lookId = null; }
   frame.addEventListener('pointerup', e => { if (e.pointerId !== lookId) return; const moved = Math.hypot(e.clientX - lookStartX, e.clientY - lookStartY); if (running && !paused && moved < 12) { const r = canvas.getBoundingClientRect(); fire(e.clientX - r.left, e.clientY - r.top); } releaseLook(e); });
   frame.addEventListener('pointercancel', releaseLook);
+  function resetTouchState() { releaseJoystick(); releaseLookJoystick(); releaseLook(); }
   document.getElementById('shootButton').addEventListener('pointerdown', e => { e.preventDefault(); fire(); }); document.getElementById('reloadButton').addEventListener('click', reload);
   document.getElementById('pauseButton').addEventListener('click', togglePause); document.getElementById('resumeButton').addEventListener('click', togglePause);
   document.getElementById('startButton').addEventListener('click', start); document.getElementById('restartButton').addEventListener('click', start);
@@ -243,5 +244,7 @@
   addEventListener('keydown', e => { const key = e.key.toLowerCase(); if (key === 'p') { e.preventDefault(); togglePause(); return; } if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); if (running && !paused) keys[key] = true; } if (e.code === 'Space') { e.preventDefault(); if (!running && !startModal.classList.contains('hidden')) start(); else if (paused) togglePause(); else fire(); } if (key === 'r') reload(); });
   addEventListener('keyup', e => { const key = e.key.toLowerCase(); if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); keys[key] = false; } });
   addEventListener('blur', () => { clearInput(); releaseJoystick(); releaseLook(); if (running && !paused) togglePause(); });
-  addEventListener('resize', resize); resize(); updateAmmo();
+  addEventListener('resize', () => { resetTouchState(); resize(); });
+  addEventListener('orientationchange', resetTouchState);
+  resize(); updateAmmo();
 })();
