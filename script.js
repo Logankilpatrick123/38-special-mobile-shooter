@@ -4,12 +4,13 @@
   const frame = document.getElementById('rangeFrame'), scoreEl = document.getElementById('score'), bestEl = document.getElementById('best');
   const timerEl = document.getElementById('timer'), ammoEl = document.getElementById('ammo'), roundEl = document.getElementById('roundCount');
   const toast = document.getElementById('toast'), startModal = document.getElementById('startModal'), pauseModal = document.getElementById('pauseModal'), endModal = document.getElementById('endModal');
-  const damage = document.getElementById('damageVignette');
+  const damage = document.getElementById('damageVignette'), joystick = document.getElementById('joystick');
   const audioApi = window.AudioContext || window.webkitAudioContext;
   let audioContext, soundOn = true, running = false, paused = false, score = 0, best = Number(localStorage.getItem('neonRangeBest') || 0), ammo = 6, timeLeft = 45;
   let width = 0, height = 0, dpr = 1, last = 0, frameId = 0, spawn = 0, recoil = 0, hitFlash = 0;
   const GROUND_Y = 0, EYE_HEIGHT = 1.65;
   const player = { x: 0, z: 1, yaw: 0, pitch: 0, moveX: 0, moveY: 0 }, keys = {}, enemies = [], sparks = [];
+  const joystickInput = { x: 0, y: 0 };
   const blocks = [
     { x: -5, z: -8, w: 2.2, d: 2, h: 1.6, c: '#5b6874' }, { x: 5, z: -10, w: 2.8, d: 2, h: 2, c: '#364955' },
     { x: -7, z: -18, w: 3.5, d: 2, h: 2.7, c: '#465861' }, { x: 6, z: -20, w: 3, d: 3, h: 1.8, c: '#66747b' },
@@ -174,7 +175,7 @@
   function spawnEnemy() { const side = Math.random() > .5 ? 1 : -1; enemies.push({ x: player.x + side * (2.5 + Math.random() * 7), z: player.z - (8 + Math.random() * 28), c: Math.random() > .5 ? '#52e2ed' : '#ff9d84', phase: Math.random() * 7, value: 50 + Math.floor(Math.random() * 35), screen: null }); }
   function updateAmmo() { ammoEl.innerHTML = ''; for (let i = 0; i < 6; i++) { const s = document.createElement('i'); if (i >= ammo) s.className = 'empty'; ammoEl.appendChild(s); } roundEl.textContent = ammo; }
   function showToast(t) { toast.textContent = t; toast.classList.remove('show'); void toast.offsetWidth; toast.classList.add('show'); }
-  function clearInput() { keys.w = keys.a = keys.s = keys.d = false; player.moveX = 0; player.moveY = 0; }
+  function clearInput() { keys.w = keys.a = keys.s = keys.d = false; player.moveX = 0; player.moveY = 0; joystickInput.x = 0; joystickInput.y = 0; if (typeof releaseJoystick === 'function') releaseJoystick(); }
   function togglePause() {
     if (!running) return;
     paused = !paused;
@@ -194,8 +195,8 @@
   function move(dt) {
     const keyboardX = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
     const keyboardY = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
-    let inputX = keyboardX;
-    let inputY = keyboardY;
+    let inputX = keyboardX + joystickInput.x;
+    let inputY = keyboardY + joystickInput.y;
     const magnitude = Math.hypot(inputX, inputY);
     if (magnitude > 1) { inputX /= magnitude; inputY /= magnitude; }
     const response = Math.min(1, dt * 14);
@@ -214,8 +215,12 @@
   }
   function start() { startModal.classList.add('hidden'); pauseModal.classList.add('hidden'); endModal.classList.add('hidden'); running = true; paused = false; score = 0; ammo = 6; timeLeft = 45; player.x = 0; player.z = 1; player.yaw = 0; clearInput(); enemies.length = 0; scoreEl.textContent = fmt(0); updateAmmo(); resize(); last = performance.now(); spawn = .1; document.getElementById('pauseButton').textContent = 'Ⅱ'; document.getElementById('pauseButton').setAttribute('aria-pressed', 'false'); cancelAnimationFrame(frameId); frameId = requestAnimationFrame(loop); beep(520, .12, 'triangle'); }
   function finish() { running = false; const newBest = score > best; if (newBest) { best = score; localStorage.setItem('neonRangeBest', best); bestEl.textContent = fmt(best); } document.getElementById('finalScore').textContent = fmt(score); document.getElementById('resultMessage').textContent = newBest ? 'New high score. The blockout belongs to you.' : 'Solid run. Drop back in and own the grid.'; endModal.classList.remove('hidden'); }
-  let lookId = null, lookX = 0, lookStartX = 0, lookStartY = 0;
-  frame.addEventListener('pointerdown', e => { lookId = e.pointerId; lookX = e.clientX; lookStartX = e.clientX; lookStartY = e.clientY; });
+  let joyId = null, joyCenter = null, lookId = null, lookX = 0, lookStartX = 0, lookStartY = 0;
+  function releaseJoystick() { joyId = null; joystickInput.x = 0; joystickInput.y = 0; joystick.querySelector('span').style.transform = ''; }
+  joystick.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); joyId = e.pointerId; joystick.setPointerCapture(joyId); const r = joystick.getBoundingClientRect(); joyCenter = { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  joystick.addEventListener('pointermove', e => { if (e.pointerId !== joyId || paused) return; e.preventDefault(); const dx = e.clientX - joyCenter.x, dy = e.clientY - joyCenter.y, max = 37, distance = Math.min(max, Math.hypot(dx, dy)), angle = Math.atan2(dy, dx); joystickInput.x = (Math.cos(angle) * distance) / max; joystickInput.y = -(Math.sin(angle) * distance) / max; joystick.querySelector('span').style.transform = `translate(${Math.cos(angle) * distance}px,${Math.sin(angle) * distance}px)`; });
+  joystick.addEventListener('pointerup', releaseJoystick); joystick.addEventListener('pointercancel', releaseJoystick); joystick.addEventListener('lostpointercapture', releaseJoystick);
+  frame.addEventListener('pointerdown', e => { if (e.target === joystick || joystick.contains(e.target)) return; lookId = e.pointerId; lookX = e.clientX; lookStartX = e.clientX; lookStartY = e.clientY; });
   frame.addEventListener('pointermove', e => { if (e.pointerId === lookId && running && !paused) { player.yaw += (e.clientX - lookX) * .008; lookX = e.clientX; } });
   frame.addEventListener('pointerup', e => { if (e.pointerId !== lookId) return; const moved = Math.hypot(e.clientX - lookStartX, e.clientY - lookStartY); if (running && moved < 12 && e.target === canvas) { const r = canvas.getBoundingClientRect(); fire(e.clientX - r.left, e.clientY - r.top); } lookId = null; });
   frame.addEventListener('pointercancel', () => { lookId = null; });
@@ -225,6 +230,6 @@
   document.getElementById('soundToggle').addEventListener('click', e => { soundOn = !soundOn; e.currentTarget.textContent = soundOn ? '♫' : '×'; e.currentTarget.setAttribute('aria-pressed', soundOn); });
   addEventListener('keydown', e => { const key = e.key.toLowerCase(); if (key === 'p') { e.preventDefault(); togglePause(); return; } if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); if (running && !paused) keys[key] = true; } if (e.code === 'Space') { e.preventDefault(); if (!running && !startModal.classList.contains('hidden')) start(); else fire(); } if (key === 'r') reload(); });
   addEventListener('keyup', e => { const key = e.key.toLowerCase(); if (['w', 'a', 's', 'd'].includes(key)) { e.preventDefault(); keys[key] = false; } });
-  addEventListener('blur', () => { clearInput(); if (running && !paused) togglePause(); });
+  addEventListener('blur', () => { clearInput(); releaseJoystick(); if (running && !paused) togglePause(); });
   addEventListener('resize', resize); resize(); updateAmmo();
 })();
